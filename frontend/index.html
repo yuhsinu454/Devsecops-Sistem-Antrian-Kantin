@@ -5,95 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Antrean Kantin</title>
     
-    <!-- Memanggil Bootstrap 5, FontAwesome (Ikon), dan Google Fonts -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Pengaturan Dasar */
-        body { 
-            background-color: #f4f7f6; 
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        /* Modifikasi Navbar (Lebih Bersih) */
-        .navbar {
-            background-color: #ffffff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        .navbar-brand {
-            color: #ff6b6b !important;
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        /* Modifikasi Kartu Menu */
-        .section-title {
-            font-weight: 600;
-            color: #2d3436;
-            border-bottom: 3px solid #ff6b6b;
-            display: inline-block;
-            padding-bottom: 5px;
-        }
-        .menu-card {
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            transition: all 0.3s ease;
-            background: #fff;
-        }
-        .menu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        .menu-card img {
-            height: 160px;
-            object-fit: cover;
-        }
-        .price-tag {
-            color: #ff6b6b;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        .btn-order {
-            background-color: #ff6b6b;
-            color: white;
-            border-radius: 20px;
-            padding: 6px 20px;
-            font-weight: 500;
-            border: none;
-            transition: 0.2s;
-        }
-        .btn-order:hover {
-            background-color: #ff4757;
-            color: white;
-        }
-
-        /* Modifikasi Panel Antrean */
-        .queue-card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-        .queue-header {
-            background: linear-gradient(135deg, #1dd1a1, #10ac84);
-            color: white;
-            padding: 1rem;
-        }
-        .active-number {
-            font-size: 5.5rem;
-            font-weight: 700;
-            color: #2d3436;
-            margin: 0;
-            line-height: 1;
-        }
-        .queue-list-item {
-            font-weight: 500;
-            color: #636e72;
-        }
+        body { background-color: #f4f7f6; font-family: 'Poppins', sans-serif; }
+        .navbar { background-color: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .navbar-brand { color: #ff6b6b !important; font-weight: 700; font-size: 1.5rem; }
+        .section-title { font-weight: 600; color: #2d3436; border-bottom: 3px solid #ff6b6b; display: inline-block; padding-bottom: 5px; }
+        .menu-card { border: none; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: all 0.3s ease; background: #fff; }
+        .menu-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .menu-card img { height: 160px; object-fit: cover; }
+        .price-tag { color: #ff6b6b; font-weight: 600; font-size: 1.1rem; }
+        .btn-order { background-color: #ff6b6b; color: white; border-radius: 20px; padding: 6px 20px; font-weight: 500; border: none; transition: 0.2s; }
+        .btn-order:hover { background-color: #ff4757; color: white; }
+        .queue-card { border: none; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .queue-header { background: linear-gradient(135deg, #1dd1a1, #10ac84); color: white; padding: 1rem; }
+        .active-number { font-size: 5.5rem; font-weight: 700; color: #2d3436; margin: 0; line-height: 1; }
+        .queue-list-item { font-weight: 500; color: #636e72; }
     </style>
 </head>
 <body>
@@ -105,11 +35,10 @@
                 <i class="fa-solid fa-utensils me-2"></i>Kantin Cepat Saji
             </span>
             <div class="d-flex">
-                <button class="btn btn-outline-dark rounded-pill position-relative">
+                <!-- Tombol Keranjang sekarang memicu Modal/Pop-up -->
+                <button class="btn btn-outline-dark rounded-pill position-relative" data-bs-toggle="modal" data-bs-target="#modalKeranjang">
                     <i class="fa-solid fa-basket-shopping me-1"></i> Keranjang
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        0
-                    </span>
+                    <span id="badge-keranjang" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
                 </button>
             </div>
         </div>
@@ -124,53 +53,43 @@
                 <h4 class="section-title mb-4">Pilih Menu Favoritmu</h4>
                 <div class="row" id="menu-container">
                     
-                    <!-- Kartu Menu 1 -->
                     <div class="col-xl-4 col-lg-6 col-sm-6 mb-4">
                         <div class="menu-card h-100 d-flex flex-column">
-                            <!-- Gambar diambil dari URL Unsplash -->
                             <img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Ayam Geprek">
                             <div class="card-body d-flex flex-column">
-                                <h5 class="card-title fw-bold mb-1">Ayam Geprek Level 5</h5>
-                                <p class="card-text text-muted small mb-2">Ayam krispi dengan sambal bawang super pedas.</p>
+                                <h5 class="card-title fw-bold mb-1">Ayam Geprek</h5>
+                                <p class="card-text text-muted small mb-2">Ayam krispi sambal bawang.</p>
                                 <div class="mt-auto d-flex justify-content-between align-items-center">
                                     <span class="price-tag">Rp 15.000</span>
-                                    <button class="btn-order" onclick="tambahPesanan('Ayam Geprek')">
-                                        <i class="fa-solid fa-plus"></i> Add
-                                    </button>
+                                    <button class="btn-order" onclick="tambahPesanan('Ayam Geprek', 15000)"><i class="fa-solid fa-plus"></i> Add</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Kartu Menu 2 -->
                     <div class="col-xl-4 col-lg-6 col-sm-6 mb-4">
                         <div class="menu-card h-100 d-flex flex-column">
                             <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Es Teh Manis">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title fw-bold mb-1">Es Teh Manis</h5>
-                                <p class="card-text text-muted small mb-2">Teh melati seduh segar dengan es batu.</p>
+                                <p class="card-text text-muted small mb-2">Teh melati seduh segar.</p>
                                 <div class="mt-auto d-flex justify-content-between align-items-center">
                                     <span class="price-tag">Rp 4.000</span>
-                                    <button class="btn-order" onclick="tambahPesanan('Es Teh Manis')">
-                                        <i class="fa-solid fa-plus"></i> Add
-                                    </button>
+                                    <button class="btn-order" onclick="tambahPesanan('Es Teh Manis', 4000)"><i class="fa-solid fa-plus"></i> Add</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Kartu Menu 3 -->
                     <div class="col-xl-4 col-lg-6 col-sm-6 mb-4">
                         <div class="menu-card h-100 d-flex flex-column">
                             <img src="https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Nasi Goreng">
                             <div class="card-body d-flex flex-column">
-                                <h5 class="card-title fw-bold mb-1">Nasi Goreng Spesial</h5>
-                                <p class="card-text text-muted small mb-2">Nasi goreng dengan telur, sosis, dan ayam suwir.</p>
+                                <h5 class="card-title fw-bold mb-1">Nasi Goreng</h5>
+                                <p class="card-text text-muted small mb-2">Nasi goreng telur sosis.</p>
                                 <div class="mt-auto d-flex justify-content-between align-items-center">
                                     <span class="price-tag">Rp 18.000</span>
-                                    <button class="btn-order" onclick="tambahPesanan('Nasi Goreng Spesial')">
-                                        <i class="fa-solid fa-plus"></i> Add
-                                    </button>
+                                    <button class="btn-order" onclick="tambahPesanan('Nasi Goreng', 18000)"><i class="fa-solid fa-plus"></i> Add</button>
                                 </div>
                             </div>
                         </div>
@@ -186,42 +105,123 @@
                         <h5 class="mb-0 fw-bold"><i class="fa-solid fa-bullhorn me-2"></i>Antrean Dipanggil</h5>
                     </div>
                     <div class="card-body text-center py-4">
-                        <p class="text-muted mb-1 small">Nomor Antrean Anda</p>
-                        <h1 class="active-number text-success mb-2" id="nomor-panggilan">A03</h1>
-                        <p class="text-muted small mb-4">Silakan menuju kasir / tempat pengambilan pesanan.</p>
-                        
+                        <p class="text-muted mb-1 small">Nomor Antrean Saat Ini</p>
+                        <h1 class="active-number text-success mb-2">A03</h1>
+                        <p class="text-muted small mb-4">Silakan menuju kasir.</p>
                         <hr class="text-muted">
-                        
                         <div class="text-start mt-3">
                             <h6 class="fw-bold mb-3">Menunggu Giliran:</h6>
-                            <ul class="list-group list-group-flush" id="daftar-antrean">
-                                <li class="list-group-item d-flex justify-content-between align-items-center queue-list-item px-0 border-0">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
                                     <span class="fw-bold fs-5">A04</span>
                                     <span class="badge bg-warning text-dark rounded-pill py-2 px-3">Persiapan</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center queue-list-item px-0 border-0">
-                                    <span class="fw-bold fs-5">A05</span>
-                                    <span class="badge bg-secondary rounded-pill py-2 px-3">Menunggu</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
+    <!-- POP-UP (MODAL) KERANJANG -->
+    <div class="modal fade" id="modalKeranjang" tabindex="-1" aria-labelledby="modalKeranjangLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="modalKeranjangLabel">
+                        <i class="fa-solid fa-cart-shopping text-danger me-2"></i>Keranjang Pesanan
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Daftar isi keranjang akan dimuat di sini -->
+                    <ul class="list-group list-group-flush mb-3" id="daftar-isi-keranjang">
+                        <li class="list-group-item text-center text-muted py-4 border-0" id="pesan-kosong">
+                            Wah, keranjangmu masih kosong nih!
+                        </li>
+                    </ul>
+                    <!-- Total Harga -->
+                    <div class="d-flex justify-content-between align-items-center fw-bold fs-5 mt-3 pt-3 border-top">
+                        <span>Total:</span>
+                        <span class="text-danger" id="total-harga-keranjang">Rp 0</span>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-order px-4 rounded-pill" onclick="prosesCheckout()">Bayar & Antre</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Wajib Bootstrap (Untuk animasi Pop-up) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script Logika Frontend -->
     <script>
-        // Fungsi simulasi tambah pesanan
-        let totalPesanan = 0;
-        function tambahPesanan(namaMenu) {
-            totalPesanan++;
-            // Update angka di keranjang merah atas
-            document.querySelector('.badge.bg-danger').innerText = totalPesanan;
+        let daftarPesanan = [];
+        let totalHarga = 0;
+
+        function formatRupiah(angka) {
+            return "Rp " + angka.toLocaleString('id-ID');
+        }
+
+        function tambahPesanan(namaMenu, harga) {
+            // Tambahkan ke data
+            daftarPesanan.push({ nama: namaMenu, harga: harga });
+            totalHarga += harga;
+
+            // Update badge merah di tombol atas
+            document.getElementById('badge-keranjang').innerText = daftarPesanan.length;
+
+            // Update isi pop-up keranjang
+            updateTampilanKeranjang();
+        }
+
+        function updateTampilanKeranjang() {
+            const wadahKeranjang = document.getElementById('daftar-isi-keranjang');
+            const pesanKosong = document.getElementById('pesan-kosong');
             
-            // Beri notifikasi kecil (opsional, bisa diganti SweetAlert nanti)
-            alert(namaMenu + " berhasil ditambahkan ke keranjang!");
+            // Sembunyikan pesan kosong jika ada isinya
+            if(daftarPesanan.length > 0) {
+                if(pesanKosong) pesanKosong.style.display = 'none';
+            }
+
+            // Render ulang isi list
+            wadahKeranjang.innerHTML = '';
+            daftarPesanan.forEach((item, index) => {
+                wadahKeranjang.innerHTML += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div>
+                            <span class="fw-medium">${item.nama}</span>
+                        </div>
+                        <span class="text-muted">${formatRupiah(item.harga)}</span>
+                    </li>
+                `;
+            });
+
+            // Update text total harga
+            document.getElementById('total-harga-keranjang').innerText = formatRupiah(totalHarga);
+        }
+
+        function prosesCheckout() {
+            if(daftarPesanan.length === 0) {
+                alert("Keranjang masih kosong!");
+                return;
+            }
+            alert("Pesanan diproses! (Nanti bagian ini akan mengirim data ke backend API Arvi)");
+            
+            // Reset keranjang setelah checkout (simulasi)
+            daftarPesanan = [];
+            totalHarga = 0;
+            document.getElementById('badge-keranjang').innerText = '0';
+            updateTampilanKeranjang();
+            document.getElementById('daftar-isi-keranjang').innerHTML = '<li class="list-group-item text-center text-muted py-4 border-0">Keranjang sudah kosong kembali.</li>';
+            
+            // Tutup pop-up
+            let modal = bootstrap.Modal.getInstance(document.getElementById('modalKeranjang'));
+            modal.hide();
         }
     </script>
 </body>
