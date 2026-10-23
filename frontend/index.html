@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Antrean Kantin</title>
+    
+    <!-- Memanggil Bootstrap 5, FontAwesome (Ikon), dan Google Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Pengaturan Dasar */
+        body { 
+            background-color: #f4f7f6; 
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* Modifikasi Navbar (Lebih Bersih) */
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .navbar-brand {
+            color: #ff6b6b !important;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        /* Modifikasi Kartu Menu */
+        .section-title {
+            font-weight: 600;
+            color: #2d3436;
+            border-bottom: 3px solid #ff6b6b;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+        .menu-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .menu-card img {
+            height: 160px;
+            object-fit: cover;
+        }
+        .price-tag {
+            color: #ff6b6b;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .btn-order {
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 20px;
+            padding: 6px 20px;
+            font-weight: 500;
+            border: none;
+            transition: 0.2s;
+        }
+        .btn-order:hover {
+            background-color: #ff4757;
+            color: white;
+        }
+
+        /* Modifikasi Panel Antrean */
+        .queue-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .queue-header {
+            background: linear-gradient(135deg, #1dd1a1, #10ac84);
+            color: white;
+            padding: 1rem;
+        }
+        .active-number {
+            font-size: 5.5rem;
+            font-weight: 700;
+            color: #2d3436;
+            margin: 0;
+            line-height: 1;
+        }
+        .queue-list-item {
+            font-weight: 500;
+            color: #636e72;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Bagian Header -->
+    <nav class="navbar navbar-expand-lg sticky-top mb-4">
+        <div class="container">
+            <span class="navbar-brand">
+                <i class="fa-solid fa-utensils me-2"></i>Kantin Cepat Saji
+            </span>
+            <div class="d-flex">
+                <button class="btn btn-outline-dark rounded-pill position-relative">
+                    <i class="fa-solid fa-basket-shopping me-1"></i> Keranjang
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        0
+                    </span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Konten Utama -->
+    <div class="container">
+        <div class="row">
+            
+            <!-- Sisi Kiri: Daftar Menu -->
+            <div class="col-lg-8 col-md-7 mb-4">
+                <h4 class="section-title mb-4">Pilih Menu Favoritmu</h4>
+                <div class="row" id="menu-container">
+                    
+                    <!-- Kartu Menu 1 -->
+                    <div class="col-xl-4 col-lg-6 col-sm-6 mb-4">
+                        <div class="menu-card h-100 d-flex flex-column">
+                            <!-- Gambar diambil dari URL Unsplash -->
+                            <img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Ayam Geprek">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title fw-bold mb-1">Ayam Geprek Level 5</h5>
+                                <p class="card-text text-muted small mb-2">Ayam krispi dengan sambal bawang super pedas.</p>
+                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                    <span class="price-tag">Rp 15.000</span>
+                                    <button class="btn-order" onclick="tambahPesanan('Ayam Geprek')">
+                                        <i class="fa-solid fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kartu Menu 2 -->
+                    <div class="col-xl-4 col-lg-6 col-sm-6 mb-4">
+                        <div class="menu-card h-100 d-flex flex-column">
+                            <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Es Teh Manis">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title fw-bold mb-1">Es Teh Manis</h5>
+                                <p class="card-text text-muted small mb-2">Teh melati seduh segar dengan es batu.</p>
+                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                    <span class="price-tag">Rp 4.000</span>
+                                    <button class="btn-order" onclick="tambahPesanan('Es Teh Manis')">
+                                        <i class="fa-solid fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kartu Menu 3 -->
+                    <div class="col-xl-4 col-lg-6 col-sm-6 mb-4">
+                        <div class="menu-card h-100 d-flex flex-column">
+                            <img src="https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Nasi Goreng">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title fw-bold mb-1">Nasi Goreng Spesial</h5>
+                                <p class="card-text text-muted small mb-2">Nasi goreng dengan telur, sosis, dan ayam suwir.</p>
+                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                    <span class="price-tag">Rp 18.000</span>
+                                    <button class="btn-order" onclick="tambahPesanan('Nasi Goreng Spesial')">
+                                        <i class="fa-solid fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Sisi Kanan: Status Antrean -->
+            <div class="col-lg-4 col-md-5">
+                <div class="queue-card bg-white position-sticky" style="top: 80px;">
+                    <div class="queue-header text-center">
+                        <h5 class="mb-0 fw-bold"><i class="fa-solid fa-bullhorn me-2"></i>Antrean Dipanggil</h5>
+                    </div>
+                    <div class="card-body text-center py-4">
+                        <p class="text-muted mb-1 small">Nomor Antrean Anda</p>
+                        <h1 class="active-number text-success mb-2" id="nomor-panggilan">A03</h1>
+                        <p class="text-muted small mb-4">Silakan menuju kasir / tempat pengambilan pesanan.</p>
+                        
+                        <hr class="text-muted">
+                        
+                        <div class="text-start mt-3">
+                            <h6 class="fw-bold mb-3">Menunggu Giliran:</h6>
+                            <ul class="list-group list-group-flush" id="daftar-antrean">
+                                <li class="list-group-item d-flex justify-content-between align-items-center queue-list-item px-0 border-0">
+                                    <span class="fw-bold fs-5">A04</span>
+                                    <span class="badge bg-warning text-dark rounded-pill py-2 px-3">Persiapan</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center queue-list-item px-0 border-0">
+                                    <span class="fw-bold fs-5">A05</span>
+                                    <span class="badge bg-secondary rounded-pill py-2 px-3">Menunggu</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Fungsi simulasi tambah pesanan
+        let totalPesanan = 0;
+        function tambahPesanan(namaMenu) {
+            totalPesanan++;
+            // Update angka di keranjang merah atas
+            document.querySelector('.badge.bg-danger').innerText = totalPesanan;
+            
+            // Beri notifikasi kecil (opsional, bisa diganti SweetAlert nanti)
+            alert(namaMenu + " berhasil ditambahkan ke keranjang!");
+        }
+    </script>
+</body>
+</html>
