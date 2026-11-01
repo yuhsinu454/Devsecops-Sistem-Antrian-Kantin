@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # 1. Database Layer
+  db:
+    image: mysql:8.0
+    container_name: kantin_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_rahasia # Ganti saat production
+      MYSQL_DATABASE: kantin_db
+      MYSQL_USER: user_kantin
+      MYSQL_PASSWORD: PasswordAman123!
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - kantin_network
+
+  # 2. Backend API Layer
+  backend:
+    build: ./backend
+    container_name: kantin_backend
+    restart: always
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_USER: user_kantin
+      DB_PASS: PasswordAman123!
+      DB_NAME: kantin_db
+      JWT_SECRET: super_secret_key_devsecops_2026
+    depends_on:
+      - db
+    networks:
+      - kantin_network
+
+  # 3. Frontend UI Layer (React/Vue/HTML statis)
+  frontend:
+    build: ./frontend
+    container_name: kantin_frontend
+    restart: always
+    networks:
+      - kantin_network
+
+  # 4. Security Gateway (Reverse Proxy & Rate Limiting)
+  nginx:
+    image: nginx:alpine
+    container_name: kantin_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - kantin_network
+
+  # 5. Monitoring Layer
+  prometheus:
+    image: prom/prometheus
+    container_name: kantin_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - kantin_network
+
+volumes:
+  db_data:
+
+networks:
+  kantin_network:
+    driver: bridge
