@@ -1,0 +1,62 @@
+name: DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # 1. Software Composition Analysis (SCA)
+  sca-backend:
+    name: Dependency Security Scan (SCA)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies & Audit
+        run: |
+          cd backend
+          npm install --package-lock-only
+          npm audit --audit-level=high
+
+  # 2. Static Application Security Testing (SAST)
+  sast-scan:
+    name: Static Code Analysis (SAST)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Run Semgrep SAST
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: "p/nodejs"
+          # Memindai seluruh kode backend dari celah seperti Hardcoded Secrets atau XSS
+
+  # 3. Container Security Scanning (Trivy)
+  container-scan:
+    name: Docker Image Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Backend Image
+        run: docker build -t kantin-backend:local ./backend
+        
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: 'kantin-backend:local'
+          format: 'table'
+          exit-code: '1' # Akan menggagalkan pipeline jika ditemukan celah CRITICAL
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL'
