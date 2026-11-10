@@ -1,5 +1,5 @@
 # Gunakan base image minimalis (mengurangi area serangan/SCA)
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Jalankan dalam mode production
 ENV NODE_ENV=production
