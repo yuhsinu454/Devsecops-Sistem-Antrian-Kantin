@@ -8,6 +8,17 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 
+// Monitoring dan Metrik
+const client = require('prom-client');
+// Mengumpulkan metrik default (CPU, RAM, Event Loop Node.js)
+client.collectDefaultMetrics(); 
+
+// Endpoint khusus yang akan "di-scrape" (disedot) oleh Prometheus secara berkala
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', client.register.contentType);
+    res.send(await client.register.metrics());
+});
+
 // Middleware Keamanan
 app.use(helmet());
 app.use(cors());

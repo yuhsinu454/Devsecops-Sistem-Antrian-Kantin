@@ -66,6 +66,19 @@ services:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - kantin_network
+  
+  # 6. Visualization Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: kantin_grafana
+    ports:
+      - "3001:3000" # Diakses melalui port 3001 di browser Anda
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin # Password default
+    depends_on:
+      - prometheus
+    networks:
+      - kantin_network
 
 volumes:
   db_data:
