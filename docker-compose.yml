@@ -7,10 +7,10 @@ services:
     container_name: kantin_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root_password_rahasia # Ganti saat production
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: kantin_db
-      MYSQL_USER: user_kantin
-      MYSQL_PASSWORD: PasswordAman123!
+      MYSQL_USER: kantin_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -25,10 +25,10 @@ services:
     environment:
       PORT: 3000
       DB_HOST: db
-      DB_USER: user_kantin
-      DB_PASS: PasswordAman123!
+      DB_USER: kantin_user
+      DB_PASS: ${MYSQL_PASSWORD}
       DB_NAME: kantin_db
-      JWT_SECRET: super_secret_key_devsecops_2026
+      JWT_SECRET: ${JWT_SECRET}
     depends_on:
       - db
     networks:

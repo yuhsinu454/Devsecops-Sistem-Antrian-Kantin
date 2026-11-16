@@ -7,6 +7,18 @@ on:
     branches: [ "main" ]
 
 jobs:
+  # 0. Secret Scanning (Gitleaks)
+  secret-scan:
+    name: Secret Detection (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Gitleaks Secret Scanning
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/path zricethezav/gitleaks:latest detect --source="/path" --config="/path/.gitleaks.toml" --no-git -v
+
   # 1. Software Composition Analysis (SCA)
   sca-backend:
     name: Dependency Security Scan (SCA)
@@ -34,7 +46,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      
+
       - name: Run Semgrep SAST
         uses: returntocorp/semgrep-action@v1
         with:
@@ -50,7 +62,7 @@ jobs:
 
       - name: Build Backend Image
         run: docker build -t kantin-backend:local ./backend
-        
+
       - name: Run Trivy Vulnerability Scanner
         # PERBAIKAN: Menggunakan versi master yang valid
         uses: aquasecurity/trivy-action@master 
