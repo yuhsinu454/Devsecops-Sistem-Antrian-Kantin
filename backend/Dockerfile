@@ -1,21 +1,22 @@
-# Gunakan base image minimalis (mengurangi area serangan/SCA)
-FROM node:20-alpine
+FROM node:22-alpine
 
-# Jalankan dalam mode production
+# Patch paket OS Alpine untuk menutup CVE bawaan sistem operasi
+RUN apk update && apk upgrade --no-cache
+
 ENV NODE_ENV=production
 WORKDIR /usr/src/app
 
-# Instal dependensi (tanpa library dev)
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm ci --omit=dev && \
+    # Hapus npm, npx, corepack, dan yarn dari image produksi untuk mengecilkan attack surface & CVE bawaan
+    rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /opt/yarn*
 
-# Salin source code
 COPY src ./src
 
-# DEVSECOPS: Gunakan non-root user bawaan image
 USER node
-
 EXPOSE 3000
+
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/metrics', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+  CMD node -e "require('http').get('http://localhost:3000/metrics', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+
 CMD ["node", "src/server.js"]
