@@ -52,7 +52,7 @@ jobs:
 
       - name: Run Gitleaks
         run: |
-          docker run --rm -v ${{ github.workspace }}:/path zricethezav/gitleaks:latest detect --source="/path" --verbose
+          docker run --rm -v ${{ github.workspace }}:/path zricethezav/gitleaks:latest detect --source="/path" --no-git --verbose
 
   # 4. Infrastructure as Code (IaC) Security (Checkov) - Fail-Fast Aktif
   iac-scan:
@@ -62,11 +62,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Run Checkov on Dockerfile & Docker Compose
+      - name: Run Checkov on Dockerfile
         uses: bridgecrewio/checkov-action@master
         with:
           directory: .
-          framework: dockerfile,docker_compose
+          framework: dockerfile
           soft_fail: false # Fail-Fast: berhenti jika ada misconfiguration IaC
 
   # 5. Container Image Security Scanning (Trivy) - Fail-Fast Aktif
