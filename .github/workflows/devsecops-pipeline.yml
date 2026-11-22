@@ -7,19 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # 0. Secret Scanning (Gitleaks)
-  secret-scan:
-    name: Secret Detection (Gitleaks)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Run Gitleaks Secret Scanning
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/path zricethezav/gitleaks:latest detect --source="/path" --config="/path/.gitleaks.toml" --no-git -v
-
-  # 1. Software Composition Analysis (SCA)
+  # 1. Software Composition Analysis (SCA) - Fail-Fast Aktif
   sca-backend:
     name: Dependency Security Scan (SCA)
     runs-on: ubuntu-latest
@@ -30,14 +18,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
-      - name: Install Dependencies & Audit
+      - name: Install Dependencies & Audit (Fail-Fast)
         run: |
           cd backend
-          npm install --package-lock-only
-          # Menambahkan || true agar laporan tetap tercetak tapi pipeline tidak menjadi merah
-          npm audit --audit-level=high || true
+          npm ci || npm install --package-lock-only
+          # Tanpa '|| true' agar pipeline otomatis GAGAL jika ada celah High/Critical
+          npm audit --audit-level=high
 
   # 2. Static Application Security Testing (SAST)
   sast-scan:
@@ -52,9 +40,38 @@ jobs:
         with:
           config: "p/nodejs"
 
-  # 3. Container Security Scanning (Trivy)
+  # 3. Secrets Detection (Gitleaks) - Fail-Fast Aktif
+  secrets-scan:
+    name: Secrets Detection (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/path zricethezav/gitleaks:latest detect --source="/path" --verbose
+
+  # 4. Infrastructure as Code (IaC) Security (Checkov) - Fail-Fast Aktif
+  iac-scan:
+    name: IaC Security Scan (Checkov)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Checkov on Dockerfile & Docker Compose
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: dockerfile,docker_compose
+          soft_fail: false # Fail-Fast: berhenti jika ada misconfiguration IaC
+
+  # 5. Container Image Security Scanning (Trivy) - Fail-Fast Aktif
   container-scan:
-    name: Docker Image Security Scan
+    name: Docker Image Security Scan (Trivy)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -64,12 +81,11 @@ jobs:
         run: docker build -t kantin-backend:local ./backend
 
       - name: Run Trivy Vulnerability Scanner
-        # PERBAIKAN: Menggunakan versi master yang valid
-        uses: aquasecurity/trivy-action@master 
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'kantin-backend:local'
           format: 'table'
-          exit-code: '0' # Ubah ke 0 agar toleran terhadap celah OS bawaan image
+          exit-code: '1' # Fail-Fast: berhenti jika ditemukan celah HIGH/CRITICAL
           ignore-unfixed: true
           vuln-type: 'os,library'
-          severity: 'CRITICAL'
+          severity: 'CRITICAL,HIGH'
